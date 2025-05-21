@@ -19,11 +19,16 @@ def upload_video():
     file.save(video_path)
 
     # Step 1: Extract audio
-    subprocess.run(['ffmpeg', '-i', video_path, '-q:a', '0', '-map', 'a', audio_path])
+    subprocess.run(['ffmpeg', '-i', video_path, '-q:a', '0', '-map', 'a', '-ac', '1', '-ar', '16000', audio_path])
+    if os.path.exists(video_path):
+        os.remove(video_path)
 
     # Step 2: Transcribe using local Whisper model
-    model = whisper.load_model("base")  # You can choose "tiny", "base", "small", "medium", or "large"
+    model = whisper.load_model("tiny")
     result = model.transcribe(audio_path)
+    if os.path.exists(audio_path):
+        os.remove(audio_path)
+
     text = result["text"]
 
     # Step 3: Generate proper .srt file with timestamps
